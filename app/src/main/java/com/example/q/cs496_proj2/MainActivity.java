@@ -19,21 +19,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
+
+    public ArrayList<String[]> facebookContacts = new ArrayList<>();
 
     private CallbackManager callbackManager;
 
@@ -71,18 +77,24 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-
         callbackManager = CallbackManager.Factory.create();
 
         LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList("public_profile", "email"));
+        loginButton.setReadPermissions(Arrays.asList("public_profile", "email", "user_friends"));
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 GraphRequest graphRequest = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
-                        Log.v("result",object.toString());
+                        Log.v("result", "************************************** " + object.toString());
+                        try {
+                            String userID = object.getString("id");
+                            Log.d("USERID", "*********************************** user ID : " + userID);
+                            getFacebookContacts(userID);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
 
@@ -90,12 +102,10 @@ public class MainActivity extends AppCompatActivity {
                 parameters.putString("fields", "id,name,email,gender,birthday");
                 graphRequest.setParameters(parameters);
                 graphRequest.executeAsync();
-
-        }
+            }
 
             @Override
             public void onCancel() {
-
             }
 
             @Override
@@ -179,5 +189,32 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+
+    public void getFacebookContacts(String userID) {
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/" + userID + "/taggable_friends?limit=50",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        Log.d("RESPONSE", "********************************************** " + response.toString());
+                        try {
+                            JSONArray friendList = response.getJSONObject().getJSONArray("data");
+                            String[] data;
+                            for (int i = 0; i < friendList.length(); i++) {
+                                data = new String[3];
+                                data[0] = friendList.getJSONObject(i).getString("id");
+                                data[1] = friendList.getJSONObject(i).getString("name");
+                                data[2] = "";
+                                facebookContacts.add(data);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).executeAsync();
     }
 }

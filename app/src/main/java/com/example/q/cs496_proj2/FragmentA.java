@@ -102,7 +102,7 @@ public class FragmentA extends Fragment {
             data[1] = contactCursor.getString(1);
             data[2] = contactCursor.getString(2);
             phoneContacts.add(data);
-            Log.d("contact", data[0] + "    " + data[1] + "    " + data[2]);
+            //Log.d("contact", data[0] + "    " + data[1] + "    " + data[2]);
             sendHttpWithContact("http://52.78.101.202:3000/api/contacts", contactStringArrayToJSON(data));
         }
         contactCursor.close();
@@ -131,7 +131,7 @@ public class FragmentA extends Fragment {
                 .post(body)
                 .build();
         try (Response response = client.newCall(request).execute()) {
-            Log.d("RESPONSE", response.body().string());
+            //Log.d("RESPONSE", response.body().string());
         } catch (IOException e) {
             e.printStackTrace();
         }
