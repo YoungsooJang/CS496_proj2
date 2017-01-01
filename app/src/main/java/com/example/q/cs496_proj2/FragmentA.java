@@ -46,7 +46,7 @@ public class FragmentA extends Fragment {
 
         listView1 = (ListView) view.findViewById(R.id.listView1);
 
-        new GetPhoneContacts().execute();
+        getPermissionToGetPhoneContacts();
 
         return view;
     }
@@ -61,7 +61,7 @@ public class FragmentA extends Fragment {
         @Override
         protected Void doInBackground(Void... none) {
             deleteAllContactsInServer("http://52.78.101.202:3000/api/contacts");
-            getPermissionToGetPhoneContacts();
+            getPhoneContacts();
             return null;
         }
 
@@ -75,7 +75,7 @@ public class FragmentA extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
         } else {
-            getPhoneContacts();
+            new GetPhoneContacts().execute();
         }
     }
 
@@ -114,7 +114,7 @@ public class FragmentA extends Fragment {
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission is granted
-                getPhoneContacts();
+                new GetPhoneContacts().execute();
             } else {
                 Toast.makeText(getActivity(), "Until you grant the permission, we cannot get the phone's contacts", Toast.LENGTH_SHORT).show();
             }
