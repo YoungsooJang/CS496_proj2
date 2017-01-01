@@ -2,6 +2,7 @@ package com.example.q.cs496_proj2;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -34,9 +35,10 @@ public class FragmentA extends Fragment {
     public FragmentA() {
     }
 
-    private ListView listView1;
-    private ArrayList<String[]> phoneContacts;
-    private ContactListViewAdapter contactListViewAdapter;
+    private static ListView listView1;
+    private static ContactListViewAdapter contactListViewAdapter;
+
+    private Context context;
 
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS  = 100;
 
@@ -45,6 +47,7 @@ public class FragmentA extends Fragment {
         View view = inflater.inflate(R.layout.fragmenta, container, false);
 
         listView1 = (ListView) view.findViewById(R.id.listView1);
+        context = view.getContext();
 
         getPermissionToGetPhoneContacts();
 
@@ -66,8 +69,7 @@ public class FragmentA extends Fragment {
         }
 
         protected void onPostExecute(Void none){
-            contactListViewAdapter = new ContactListViewAdapter(getActivity(), phoneContacts);
-            listView1.setAdapter(contactListViewAdapter);
+            updateListView(MainActivity.phoneContacts);
         }
     }
 
@@ -94,14 +96,14 @@ public class FragmentA extends Fragment {
 
         Cursor contactCursor = cr.query(contactsURI, reqCols, null, null, sortOrder);
 
-        phoneContacts = new ArrayList<>();
         String[] data;
         while(contactCursor.moveToNext()) {
             data = new String[3];
-            data[0] = contactCursor.getString(0);
+            data[0] = Integer.toString(MainActivity.contactCount);
+            MainActivity.contactCount += 1;
             data[1] = contactCursor.getString(1);
             data[2] = contactCursor.getString(2);
-            phoneContacts.add(data);
+            MainActivity.phoneContacts.add(data);
             //Log.d("contact", data[0] + "    " + data[1] + "    " + data[2]);
             sendHttpWithContact("http://52.78.101.202:3000/api/contacts", contactStringArrayToJSON(data));
         }
@@ -161,5 +163,10 @@ public class FragmentA extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void updateListView(ArrayList<String[]> contacts) {
+        contactListViewAdapter = new ContactListViewAdapter(context, contacts);
+        listView1.setAdapter(contactListViewAdapter);
     }
 }

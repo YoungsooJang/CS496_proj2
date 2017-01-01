@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -38,6 +39,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -47,7 +50,12 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    public ArrayList<String[]> facebookContacts = new ArrayList<>();
+    public static int contactCount = 1;
+
+    public static ArrayList<String[]> totalContacts = new ArrayList<>();
+    public static ArrayList<String[]> phoneContacts = new ArrayList<>();
+    public static ArrayList<String[]> facebookContacts = new ArrayList<>();
+    public FragmentA fragmentA;
 
     private CallbackManager callbackManager;
 
@@ -167,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
             // getItem is called to instantiate the fragment for the given page.
             switch (position) {
                 case 0:
-                    FragmentA fragmentA = new FragmentA();
+                    fragmentA = new FragmentA();
                     return fragmentA;
                 case 1:
                     FragmentB fragmentB = new FragmentB();
@@ -213,15 +221,16 @@ public class MainActivity extends AppCompatActivity {
                             String[] data;
                             for (int i = 0; i < friendList.length(); i++) {
                                 data = new String[3];
-                                data[0] = friendList.getJSONObject(i).getString("id");
+                                data[0] = Integer.toString(contactCount);
+                                contactCount += 1;
                                 data[1] = friendList.getJSONObject(i).getString("name");
-                                data[2] = "";
+                                data[2] = "facebook";
                                 facebookContacts.add(data);
-                                new PostFacebookContacts().execute(data);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        new PostFacebookContacts().execute();
                     }
                 }
         ).executeAsync();
@@ -256,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         return jsonObject.toString();
     }
 
-    public class PostFacebookContacts extends AsyncTask<String, Void, Void> {
+    public class PostFacebookContacts extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -264,12 +273,23 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(String... str) {
-            sendHttpWithContact("http://52.78.101.202:3000/api/contacts", contactStringArrayToJSON(str));
+        protected Void doInBackground(Void... none) {
+            for (String[] FBcontact : facebookContacts) {
+                sendHttpWithContact("http://52.78.101.202:3000/api/contacts", contactStringArrayToJSON(FBcontact));
+            }
             return null;
         }
 
         protected void onPostExecute(Void none){
+            totalContacts = phoneContacts;
+            totalContacts.addAll(facebookContacts);
+            Collections.sort(totalContacts, new Comparator<String[]>() {
+                @Override
+                public int compare(String[] o1, String[] o2) {
+                    return o1[1].compareTo(o2[1]);
+                }
+            });
+            fragmentA.updateListView(totalContacts);
         }
     }
 }
