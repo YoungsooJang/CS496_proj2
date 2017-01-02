@@ -9,6 +9,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import com.koushikdutta.ion.Ion;
+
 import java.util.ArrayList;
 
 public class GridViewAdapter extends BaseAdapter {
@@ -47,7 +49,11 @@ public class GridViewAdapter extends BaseAdapter {
         } else {
             image = (ImageView) convertView;
         }
-        image.setImageBitmap(BitmapFactory.decodeFile(imagePaths.get(position)));
+        if (imagePaths.get(position).contains("/storage/")) {
+            image.setImageBitmap(BitmapFactory.decodeFile(imagePaths.get(position)));
+        } else {
+            Ion.with(image).load("http://52.78.101.202:3000/api/images/" + imagePaths.get(position));
+        }
         return image;
     }
 }

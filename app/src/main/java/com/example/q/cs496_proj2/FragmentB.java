@@ -22,6 +22,7 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -91,9 +92,9 @@ public class FragmentB extends Fragment {
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                 String imgDecodableString = cursor.getString(columnIndex);
                 cursor.close();
-                imagePaths.add(imgDecodableString);
                 Log.d("IMAGE", "***************************************** imgDecodableString is " + imgDecodableString);
                 postImageToServer(imgDecodableString);
+                imagePaths.add(imgDecodableString);
             } else {
                 Toast.makeText(getActivity(), "You haven't picked Image", Toast.LENGTH_SHORT).show();
             }
@@ -107,7 +108,7 @@ public class FragmentB extends Fragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         } else {
-            gridView.setAdapter(new GridViewAdapter(getActivity(), imagePaths));
+            getAllImagesPathInServer();
         }
     }
 
@@ -117,7 +118,7 @@ public class FragmentB extends Fragment {
         if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission is granted
-                gridView.setAdapter(new GridViewAdapter(getActivity(), imagePaths));
+                getAllImagesPathInServer();
             } else {
                 Toast.makeText(getActivity(), "Until you grant the permission, we cannot read external storage", Toast.LENGTH_SHORT).show();
             }
@@ -138,6 +139,28 @@ public class FragmentB extends Fragment {
                         try {
                             JSONObject jsonObject = new JSONObject(result.getResult());
                             Toast.makeText(getActivity(), jsonObject.getString("response"), Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+    public void getAllImagesPathInServer() {
+        Future downloading = Ion.with(context)
+                .load("GET", "http://52.78.101.202:3000/api/images")
+                .asString()
+                .withResponse()
+                .setCallback(new FutureCallback<Response<String>>() {
+                    @Override
+                    public void onCompleted(Exception e, Response<String> result) {
+                        Log.d("IMAGEPATH", "***************************************** " + result.getResult());
+                        try {
+                            JSONArray imagePathList = new JSONArray(result.getResult());
+                            for (int i = 0; i < imagePathList.length(); i++) {
+                                imagePaths.add(imagePathList.getJSONObject(i).getString("path"));
+                            }
+                            gridView.setAdapter(new GridViewAdapter(getActivity(), imagePaths));
                         } catch (JSONException e1) {
                             e1.printStackTrace();
                         }
