@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     return "Gallery";
                 case 2:
-                    return "NULL";
+                    return "TETRIS";
             }
             return null;
         }
