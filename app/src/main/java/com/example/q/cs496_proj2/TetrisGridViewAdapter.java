@@ -2,6 +2,7 @@ package com.example.q.cs496_proj2;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +19,7 @@ public class TetrisGridViewAdapter extends BaseAdapter {
 
     public TetrisGridViewAdapter(Context context, ArrayList<Integer> map) {
         this.context = context;
-        this.map = map;
+        this.map = shrink(map);
         this.inflater = LayoutInflater.from(context);
     }
 
@@ -45,12 +46,36 @@ public class TetrisGridViewAdapter extends BaseAdapter {
         }
         itemView = (TextView) view.findViewById(R.id.itemView);
 
-        if (map.get(position) == 1) {
-            itemView.setBackgroundColor(Color.BLACK);
-        } else {
-            itemView.setBackground(context.getResources().getDrawable(R.drawable.border));
+        switch (map.get(position)) {
+            case 0 : itemView.setBackground(context.getResources().getDrawable(R.drawable.border));
+                break;
+            case 1 : itemView.setBackgroundColor(Color.RED);
+                break;
+            case 2 : itemView.setBackgroundColor(Color.MAGENTA);
+                break;
+            case 3 : itemView.setBackgroundColor(Color.YELLOW);
+                break;
+            case 4 : itemView.setBackgroundColor(Color.GREEN);
+                break;
+            case 5 : itemView.setBackgroundColor(Color.BLUE);
+                break;
+            case 6 : itemView.setBackgroundColor(Color.CYAN);
+                break;
+            case 7 : itemView.setBackgroundColor(Color.LTGRAY);
+                break;
+            default : break;
         }
 
         return view;
+    }
+
+    public ArrayList<Integer> shrink(ArrayList<Integer> input) {
+        ArrayList<Integer> output = new ArrayList<>();
+        output.addAll(input);
+        for (int i = 0; i < 44; i++) {
+            //Log.d("COLOR", Integer.toString(i) + ", " + output.get(i).toString());
+            output.remove(0);
+        }
+        return output;
     }
 }
