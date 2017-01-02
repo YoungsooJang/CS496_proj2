@@ -1,6 +1,7 @@
 package com.example.q.cs496_proj2;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -17,7 +18,16 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.Response;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.Future;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -26,6 +36,7 @@ public class FragmentB extends Fragment {
     private ArrayList<String> imagePaths = new ArrayList<>();
     private GridView gridView;
     private static int RESULT_LOAD_IMG = 1;
+    private Context context;
 
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE  = 101;
 
@@ -35,6 +46,10 @@ public class FragmentB extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragmentb, container, false);
+
+        context = view.getContext();
+
+        Ion.getDefault(context).configure().setLogging("ion-sample", Log.DEBUG);
 
         gridView = (GridView) view.findViewById(R.id.gridView);
 
@@ -78,7 +93,7 @@ public class FragmentB extends Fragment {
                 cursor.close();
                 imagePaths.add(imgDecodableString);
                 Log.d("IMAGE", "***************************************** imgDecodableString is " + imgDecodableString);
-
+                postImageToServer(imgDecodableString);
             } else {
                 Toast.makeText(getActivity(), "You haven't picked Image", Toast.LENGTH_SHORT).show();
             }
@@ -107,6 +122,27 @@ public class FragmentB extends Fragment {
                 Toast.makeText(getActivity(), "Until you grant the permission, we cannot read external storage", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void postImageToServer(String path) {
+        File file = new File(path);
+
+        Future uploading = Ion.with(context)
+                .load("http://52.78.101.202:3000/api/images")
+                .setMultipartFile("image", file)
+                .asString()
+                .withResponse()
+                .setCallback(new FutureCallback<Response<String>>() {
+                    @Override
+                    public void onCompleted(Exception e, Response<String> result) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(result.getResult());
+                            Toast.makeText(getActivity(), jsonObject.getString("response"), Toast.LENGTH_SHORT).show();
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                });
     }
 
 }
