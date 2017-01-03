@@ -99,11 +99,11 @@ public class TetrisActivity extends AppCompatActivity {
                         Intent intent = new Intent(context, TetrisActivity.class);
                         startActivity(intent);
                     }
-
                 })
                 .setNegativeButton("Go to First Screen", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
+                        Intent intent = new Intent(context, MainActivity.class);
+                        startActivity(intent);
                     }
                 });
 
@@ -597,5 +597,4 @@ public class TetrisActivity extends AppCompatActivity {
             default: break;
         }
     }
-
 }

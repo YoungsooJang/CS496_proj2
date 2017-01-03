@@ -12,8 +12,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="CS496_proj2"
+        android:icon="@drawable/tetris"
+        android:label="MATRIS"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
