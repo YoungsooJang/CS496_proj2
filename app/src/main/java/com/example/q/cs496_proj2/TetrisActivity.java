@@ -205,6 +205,192 @@ public class TetrisActivity extends AppCompatActivity {
     }
 
     public void rotatePiece() {
+        ArrayList<Integer> After = new ArrayList<>();
+        Collections.sort(falling);
+        After.addAll(falling);
+        int shape = map.get(falling.get(0));
+        int min, center;
+        switch(shape) {
+            case 1:
+                //base
+                center = falling.get(1);
+                if (falling.contains(center + 1)) {
+                    After.set(0, center - 11);
+                    After.set(2, center + 11);
+                    After.set(3, center + 22);
+                } else {
+                    if ((center % 11) == 0) {
+                        After.set(0, center + 1);
+                        After.set(2, center + 2);
+                        After.set(3, center + 3);
+                    } else if ((center % 11) == 10) {
+                        After.set(0, center - 1);
+                        After.set(2, center - 2);
+                        After.set(3, center - 3);
+                    } else if ((center % 11) == 9) {
+                        After.set(0, center + 1);
+                        After.set(2, center - 1);
+                        After.set(3, center - 2);
+                    } else {
+                        After.set(0, center - 1);
+                        After.set(2, center + 1);
+                        After.set(3, center + 2);
+                    }
+                }
+                break;
+            case 2:
+                min = falling.get(0);
+                if (falling.contains(min + 11) && falling.contains(min + 22)) {
+                    center = min + 11;
+                    if ((center % 11) == 0) {
+                        After.set(0, center + 1);
+                        After.set(3, center + 2);
+                    } else {
+                        After.set(0, center - 1);
+                        After.set(2, center + 1);
+                        After.set(3, center + 10);
+                    }
+                } else if (falling.contains(min + 12)) {
+                    center = min + 12;
+                    if ((center % 11) == 10) {
+                        After.set(0, center - 1);
+                        After.set(3, center - 2);
+                    } else {
+                        After.set(0, center - 1);
+                        After.set(1, center + 1);
+                        After.set(3, center - 10);
+                    }
+                } else if (falling.contains(min + 10)) {
+                    center = min + 10;
+                    After.set(0, center - 11);
+                    After.set(1, center + 11);
+                    After.set(3, center + 12);
+                } else {
+                    center = min + 1;
+                    After.set(0, center - 11);
+                    After.set(2, center + 11);
+                    After.set(3, center - 12);
+                }
+                break;
+            case 3:
+                min = falling.get(0);
+                if (falling.contains(min + 11) && falling.contains(min + 22)) {
+                    center = min + 11;
+                    if (falling.contains(min + 1)) {
+                        if ((center % 11) == 0) {
+                            After.set(0, center + 1);
+                            After.set(1, center + 2);
+                            After.set(3, center + 13);
+                        } else {
+                            After.set(0, center - 1);
+                            After.set(1, center + 1);
+                            After.set(3, center + 12);
+                        }
+                    } else {
+                        if ((center % 11) == 10) {
+                            After.set(0, center - 1);
+                            After.set(2, center - 2);
+                            After.set(3, center - 13);
+                        } else {
+                            After.set(0, center - 1);
+                            After.set(2, center + 1);
+                            After.set(3, center - 12);
+                        }
+                    }
+                } else if (falling.contains(min + 11)) {
+                    center = min + 12;
+                    After.set(0, center - 11);
+                    After.set(1, center + 11);
+                    After.set(3, center - 10);
+                } else {
+                    center = min + 1;
+                    After.set(0, center - 11);
+                    After.set(2, center + 11);
+                    After.set(3, center + 10);
+                }
+                break;
+            case 4:
+                min = falling.get(0);
+                center = min + 11;
+                if (falling.contains(min + 1)) {
+                    After.set(1, center + 1);
+                    After.set(2, center + 12);
+                } else {
+                    if ((center % 11) == 0) {
+                        After.set(0, center - 10);
+                        After.set(3, center - 11);
+                    } else {
+                        After.set(2, center - 1);
+                        After.set(3, center - 10);
+                    }
+                }
+                break;
+            case 5:
+                min = falling.get(0);
+                if (falling.contains(min + 1)) {
+                    center = min + 12;
+                    After.set(0, center - 10);
+                    After.set(1, center + 11);
+                } else {
+                    center = min + 10;
+                    if ((center % 11) == 0) {
+                        After.set(1, center - 11);
+                        After.set(3, center + 2);
+                    } else {
+                        After.set(0, center - 11);
+                        After.set(3, center - 12);
+                    }
+                }
+                break;
+            case 6:
+                min = falling.get(0);
+                if (falling.contains(min + 11) && falling.contains(min + 22)) {
+                    center = min + 11;
+                    if (falling.contains(center + 1)) {
+                        if ((center % 11) == 0) {
+                            After.set(0, center + 2);
+                            After.set(3, center + 12);
+                        } else {
+                            After.set(0, center - 1);
+                        }
+                    } else {
+                        if ((center % 11) == 10) {
+                            After.set(0, center - 2);
+                            After.set(3, center - 12);
+                        } else {
+                            After.set(3, center + 1);
+                        }
+                    }
+                } else {
+                    if (falling.contains(min + 11)) {
+                        center = min + 11;
+                        After.set(1, center + 11);
+                    } else {
+                        center = min + 1;
+                        After.set(2, center - 11);
+                    }
+                }
+                break;
+            case 7: break;
+            default: break;
+        }
+        boolean canRotate = true;
+        for (Integer index : After) {
+            if (stuck.contains(index)) {
+                canRotate = false;
+            }
+        }
+
+        if (canRotate) {
+            for (Integer index : falling) {
+                map.set(index, 0);
+            }
+            for (Integer index : After) {
+                map.set(index, shape);
+            }
+            falling.clear();
+            falling.addAll(After);
+        }
 
     }
 
