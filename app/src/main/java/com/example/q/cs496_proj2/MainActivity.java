@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<String[]> totalContacts = new ArrayList<>();
     public static ArrayList<String[]> phoneContacts = new ArrayList<>();
     public static ArrayList<String[]> facebookContacts = new ArrayList<>();
+    public static ArrayList<String[]> rankingList = new ArrayList<>();
     public FragmentA fragmentA;
     public static String userName = "Anonymous";
 
