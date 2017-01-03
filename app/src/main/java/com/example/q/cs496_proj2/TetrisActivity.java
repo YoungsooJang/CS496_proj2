@@ -138,8 +138,8 @@ public class TetrisActivity extends AppCompatActivity {
                 falling.set(i, index + 11);
             }
         } else {
-            removeCompleteLine();
             stuck.addAll(falling);
+            removeCompleteLine();
             falling.clear();
             randomCreate();
         }
@@ -447,6 +447,14 @@ public class TetrisActivity extends AppCompatActivity {
         scoreView.setText("Score : " + Integer.toString(score));
         updateStuck();
     }
+
+//    public void GameOver(){
+//        for (int i= 11*3; i<11*4; i++){
+//            if (stuck.contains()) {
+//
+//            }
+//        }
+//    }
 
     public void updateStuck() {
         stuck.clear();
