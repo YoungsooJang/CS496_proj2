@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<String[]> phoneContacts = new ArrayList<>();
     public static ArrayList<String[]> facebookContacts = new ArrayList<>();
     public FragmentA fragmentA;
+    public static String userName = "Anonymous";
 
     private CallbackManager callbackManager;
 
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.v("result", "************************************** " + object.toString());
                         try {
                             String userID = object.getString("id");
+                            userName = object.getString("name");
                             Log.d("USERID", "*********************************** user ID : " + userID);
                             getFacebookContacts(userID);
                         } catch (JSONException e) {

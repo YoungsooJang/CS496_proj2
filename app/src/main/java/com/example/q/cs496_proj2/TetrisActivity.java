@@ -22,6 +22,7 @@ public class TetrisActivity extends AppCompatActivity {
     private ArrayList<Integer> falling = new ArrayList<>();
     private GridView gridView;
     private TextView scoreView;
+    private TextView nameView;
     private int score;
 
     @Override
@@ -44,6 +45,9 @@ public class TetrisActivity extends AppCompatActivity {
         score = 0;
 
         scoreView = (TextView) findViewById(R.id.textViewScore);
+        nameView = (TextView) findViewById(R.id.textViewName);
+        nameView.setText("Name : " + MainActivity.userName);
+
         gridView = (GridView) findViewById(R.id.gridView2);
         gridView.setAdapter(new TetrisGridViewAdapter(getApplicationContext(), map));
 
