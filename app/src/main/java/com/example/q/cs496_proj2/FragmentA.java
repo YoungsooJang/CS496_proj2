@@ -37,6 +37,7 @@ public class FragmentA extends Fragment {
 
     private static ListView listView1;
     private static ContactListViewAdapter contactListViewAdapter;
+    private static boolean firstView = true;
 
     private Context context;
 
@@ -63,8 +64,11 @@ public class FragmentA extends Fragment {
 
         @Override
         protected Void doInBackground(Void... none) {
-            deleteAllContactsInServer("http://52.78.101.202:3000/api/contacts");
-            getPhoneContacts();
+            if (firstView) {
+                deleteAllContactsInServer("http://52.78.101.202:3000/api/contacts");
+                getPhoneContacts();
+                firstView = false;
+            }
             return null;
         }
 

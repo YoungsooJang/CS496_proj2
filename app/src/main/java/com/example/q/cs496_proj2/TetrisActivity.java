@@ -37,6 +37,7 @@ public class TetrisActivity extends AppCompatActivity {
 
     final Context context = this;
     private AlertDialog alertDialog;
+    private AlertDialog.Builder alertDialogBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,25 +94,7 @@ public class TetrisActivity extends AppCompatActivity {
             }
         });
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-
-        alertDialogBuilder
-                .setMessage("Final Score : " + Integer.toString(score))
-                .setPositiveButton("Restart", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent(context, TetrisActivity.class);
-                        startActivity(intent);
-                    }
-                })
-                .setNegativeButton("Go to First Screen", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent(context, MainActivity.class);
-                        startActivity(intent);
-                    }
-                });
-
-        // create alert dialog
-        alertDialog = alertDialogBuilder.create();
+        alertDialogBuilder = new AlertDialog.Builder(context);
 
         Random random = new Random();
         pieceCreate(random.nextInt(7));
@@ -496,6 +479,24 @@ public class TetrisActivity extends AppCompatActivity {
         }
 
         if (gameOver) {
+            alertDialogBuilder
+                    .setMessage("Final Score : " + Integer.toString(score))
+                    .setPositiveButton("Restart", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(context, TetrisActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Go to First Screen", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(context, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+
+            // create alert dialog
+            alertDialog = alertDialogBuilder.create();
+
             // show it
             alertDialog.show();
         }
