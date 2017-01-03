@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class RankingListViewAdapter extends BaseAdapter {
     private Context context;
@@ -39,7 +41,14 @@ public class RankingListViewAdapter extends BaseAdapter {
         textViewR2 = (TextView) view.findViewById(R.id.textViewR2);
         textViewR3 = (TextView) view.findViewById(R.id.textViewR3);
 
-        textViewR1.setText(rankingList.get(position)[0]);
+        Collections.sort(rankingList, new Comparator<String[]>() {
+            @Override
+            public int compare(String[] o1, String[] o2) {
+                return (Integer.parseInt(o2[2]) - Integer.parseInt(o1[2]));
+            }
+        });
+
+        textViewR1.setText(Integer.toString(position + 1));
         textViewR2.setText(rankingList.get(position)[1]);
         textViewR3.setText(rankingList.get(position)[2]);
 
