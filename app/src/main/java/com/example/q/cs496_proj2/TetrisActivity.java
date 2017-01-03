@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +21,8 @@ public class TetrisActivity extends AppCompatActivity {
     private ArrayList<Integer> stuck = new ArrayList<>();
     private ArrayList<Integer> falling = new ArrayList<>();
     private GridView gridView;
+    private TextView scoreView;
+    private int score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +41,9 @@ public class TetrisActivity extends AppCompatActivity {
             stuck.add(i);
         }
 
+        score = 0;
+
+        scoreView = (TextView) findViewById(R.id.textViewScore);
         gridView = (GridView) findViewById(R.id.gridView2);
         gridView.setAdapter(new TetrisGridViewAdapter(getApplicationContext(), map));
 
@@ -92,7 +99,12 @@ public class TetrisActivity extends AppCompatActivity {
             @Override
             public void run() {
                 while(true) {
-                    fallView();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fallView();
+                        }
+                    });
                     try {
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
@@ -122,6 +134,7 @@ public class TetrisActivity extends AppCompatActivity {
                 falling.set(i, index + 11);
             }
         } else {
+            removeCompleteLine();
             stuck.addAll(falling);
             falling.clear();
             randomCreate();
@@ -180,26 +193,19 @@ public class TetrisActivity extends AppCompatActivity {
 
     public void dropPiece() {
         Collections.sort(falling, Collections.reverseOrder());
-        boolean drop = true;
-        for (Integer index : falling) {
-            if (stuck.contains(index + 11)) {
-                drop = false;
-            }
-        }
-
-        while(drop) {
-            for (int i = 0; i < 4; i ++) {
-                int index = falling.get(i);
-                int current = map.get(index);
-                map.set(index + 11, current);
-                map.set(index, 0);
-                falling.set(i, index + 11);
-            }
-
+        while(true) {
             for (Integer index : falling) {
                 if (stuck.contains(index + 11)) {
-                    drop = false;
+                    return;
                 }
+            }
+
+            for (int i = 0; i < 4; i ++) {
+                int index1 = falling.get(i);
+                int current = map.get(index1);
+                map.set(index1 + 11, current);
+                map.set(index1, 0);
+                falling.set(i, index1 + 11);
             }
         }
     }
@@ -317,8 +323,8 @@ public class TetrisActivity extends AppCompatActivity {
                     After.set(2, center + 12);
                 } else {
                     if ((center % 11) == 0) {
-                        After.set(0, center - 10);
-                        After.set(3, center - 11);
+                        After.set(0, center - 9);
+                        After.set(3, center - 10);
                     } else {
                         After.set(2, center - 1);
                         After.set(3, center - 10);
@@ -391,7 +397,63 @@ public class TetrisActivity extends AppCompatActivity {
             falling.clear();
             falling.addAll(After);
         }
+    }
 
+    public void removeCompleteLine() {
+        ArrayList<Integer> completeList = new ArrayList<>();
+        for (int i = 22; i > 3; i--) {
+            boolean completeLine = true;
+            for (int j = 0; j < 11; j++) {
+                if (map.get(i * 11 + j) == 0) {
+                    completeLine = false;
+                    break;
+                }
+            }
+            if (completeLine) {
+                completeList.add(i);
+            }
+        }
+
+        for (Integer line : completeList) {
+            for (int i = 0; i < 11; i++) {
+                map.remove(line * 11);
+            }
+        }
+
+        for (int i = 0; i < (11 * completeList.size()); i++) {
+            map.add(0, 0);
+        }
+
+        int numCompleteLine = completeList.size();
+        switch(numCompleteLine) {
+            case 1: score += 100;
+                Toast.makeText(getApplicationContext(), "Good! (1 line was removed)", Toast.LENGTH_SHORT).show();
+                break;
+            case 2: score += 300;
+                Toast.makeText(getApplicationContext(), "Great! (2 line was removed)", Toast.LENGTH_SHORT).show();
+                break;
+            case 3: score += 600;
+                Toast.makeText(getApplicationContext(), "Excellent! (3 line was removed)", Toast.LENGTH_SHORT).show();
+                break;
+            case 4: score += 1000;
+                Toast.makeText(getApplicationContext(), "Awesome! (4 line was removed)", Toast.LENGTH_SHORT).show();
+                break;
+            default: break;
+        }
+        scoreView.setText("Score : " + Integer.toString(score));
+        updateStuck();
+    }
+
+    public void updateStuck() {
+        stuck.clear();
+        for (int i = 0; i < map.size(); i++) {
+            if (map.get(i) != 0) {
+                stuck.add(i);
+            }
+        }
+        for (int i = 11 * 23; i < 11 * 24; i++) {
+            stuck.add(i);
+        }
     }
 
     public void createI() {
