@@ -1,7 +1,11 @@
 package com.example.q.cs496_proj2;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +19,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
 
+import static com.example.q.cs496_proj2.R.id.container;
+
 public class TetrisActivity extends AppCompatActivity {
 
     private ArrayList<Integer> map = new ArrayList<>();
@@ -24,6 +30,10 @@ public class TetrisActivity extends AppCompatActivity {
     private TextView scoreView;
     private TextView nameView;
     private int score;
+    private boolean gameOver = false;
+
+    final Context context = this;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +90,30 @@ public class TetrisActivity extends AppCompatActivity {
             }
         });
 
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+        alertDialogBuilder
+                .setMessage("Final Score : " + Integer.toString(score))
+                .setPositiveButton("Restart", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Intent intent = new Intent(context, TetrisActivity.class);
+                        startActivity(intent);
+                    }
+
+                })
+                .setNegativeButton("Go to First Screen", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+
+        // create alert dialog
+        alertDialog = alertDialogBuilder.create();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true) {
+                while(!gameOver) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -96,13 +126,14 @@ public class TetrisActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+                return;
             }
         }).start();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true) {
+                while(!gameOver) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -115,6 +146,7 @@ public class TetrisActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+                return;
             }
         }).start();
     }
@@ -141,6 +173,7 @@ public class TetrisActivity extends AppCompatActivity {
             stuck.addAll(falling);
             removeCompleteLine();
             falling.clear();
+            GameOver();
             randomCreate();
         }
     }
@@ -448,13 +481,19 @@ public class TetrisActivity extends AppCompatActivity {
         updateStuck();
     }
 
-//    public void GameOver(){
-//        for (int i= 11*3; i<11*4; i++){
-//            if (stuck.contains()) {
-//
-//            }
-//        }
-//    }
+    public void GameOver() {
+        for (int i= 11*3; i<11*4; i++) {
+            if (stuck.contains(i)) {
+                gameOver = true;
+                break;
+            }
+        }
+
+        if (gameOver) {
+            // show it
+            alertDialog.show();
+        }
+    }
 
     public void updateStuck() {
         stuck.clear();

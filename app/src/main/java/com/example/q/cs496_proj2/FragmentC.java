@@ -22,10 +22,10 @@ public class FragmentC extends Fragment {
 
         Button startBtn = (Button) view.findViewById(R.id.startButton);
         startBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, TetrisActivity.class);
-                startActivity(intent);
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TetrisActivity.class);
+                        startActivity(intent);
             }
         });
 
