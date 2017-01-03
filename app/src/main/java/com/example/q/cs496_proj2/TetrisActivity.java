@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,23 +31,21 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static android.R.attr.data;
-import static com.example.q.cs496_proj2.R.id.container;
-
 public class TetrisActivity extends AppCompatActivity {
 
-    private String[] ranking;
     private ArrayList<Integer> map = new ArrayList<>();
     private ArrayList<Integer> stuck = new ArrayList<>();
     private ArrayList<Integer> falling = new ArrayList<>();
     private GridView gridView;
     private TextView scoreView;
     private TextView nameView;
+    private ImageView nextPieceView;
     private int score;
     private boolean gameOver = false;
-    String[] data;
+    private int nextPiece;
 
     final Context context = this;
+    private AlertDialog.Builder alertDialogBuilder;
     private AlertDialog alertDialog;
 
     @Override
@@ -60,7 +59,6 @@ public class TetrisActivity extends AppCompatActivity {
         for (int i = 0; i < 11 * 23; i++) {
             map.add(0);
         }
-        randomCreate();
 
         for (int i = 11 * 23; i < 11 * 24; i++) {
             stuck.add(i);
@@ -71,6 +69,7 @@ public class TetrisActivity extends AppCompatActivity {
         scoreView = (TextView) findViewById(R.id.textViewScore);
         nameView = (TextView) findViewById(R.id.textViewName);
         nameView.setText("Name : " + MainActivity.userName);
+        nextPieceView = (ImageView) findViewById(R.id.imageViewNextPiece);
 
         gridView = (GridView) findViewById(R.id.gridView2);
         gridView.setAdapter(new TetrisGridViewAdapter(getApplicationContext(), map));
@@ -104,25 +103,10 @@ public class TetrisActivity extends AppCompatActivity {
             }
         });
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+        alertDialogBuilder = new AlertDialog.Builder(context);
 
-        alertDialogBuilder
-                .setMessage("Final Score : " + Integer.toString(score))
-                .setPositiveButton("Restart", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        Intent intent = new Intent(context, TetrisActivity.class);
-                        startActivity(intent);
-                    }
-
-                })
-                .setNegativeButton("Go to First Screen", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-
-                    }
-                });
-
-        // create alert dialog
-        alertDialog = alertDialogBuilder.create();
+        Random random = new Random();
+        pieceCreate(random.nextInt(7));
 
         new Thread(new Runnable() {
             @Override
@@ -188,7 +172,7 @@ public class TetrisActivity extends AppCompatActivity {
             removeCompleteLine();
             falling.clear();
             GameOver();
-            randomCreate();
+            pieceCreate(nextPiece);
         }
     }
 
@@ -504,12 +488,28 @@ public class TetrisActivity extends AppCompatActivity {
         }
 
         if (gameOver) {
-            alertDialog.show();
-            data = new String[2];
-            new SendRanking().execute();
-            data[0] = MainActivity.userName;
-            data[1] = Integer.toString(score);
+            alertDialogBuilder
+                    .setMessage("Final Score : " + Integer.toString(score))
+                    .setPositiveButton("Restart", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(context, TetrisActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Go to First Screen", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(context, MainActivity.class);
+                            startActivity(intent);
+                        }
+                    });
 
+            // create alert dialog
+            alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+
+            new SendRanking().execute();
         }
     }
 
@@ -602,9 +602,8 @@ public class TetrisActivity extends AppCompatActivity {
         falling.add(17);
     }
 
-    public void randomCreate() {
-        Random random = new Random();
-        switch(random.nextInt(7)) {
+    public void pieceCreate(int shape) {
+        switch(shape) {
             case 0: createI(); break;
             case 1: createL(); break;
             case 2: createL2(); break;
@@ -612,6 +611,22 @@ public class TetrisActivity extends AppCompatActivity {
             case 4: createS2(); break;
             case 5: createF(); break;
             case 6: createD(); break;
+            default: break;
+        }
+        Random random = new Random();
+        nextPiece = random.nextInt(7);
+        showNextPiece();
+    }
+
+    public void showNextPiece() {
+        switch(nextPiece) {
+            case 0: nextPieceView.setImageResource(R.drawable.noun_187903_cc); break;
+            case 1: nextPieceView.setImageResource(R.drawable.noun_187904_cc); break;
+            case 2: nextPieceView.setImageResource(R.drawable.noun_187905_cc); break;
+            case 3: nextPieceView.setImageResource(R.drawable.noun_187909_cc); break;
+            case 4: nextPieceView.setImageResource(R.drawable.noun_187906_cc); break;
+            case 5: nextPieceView.setImageResource(R.drawable.noun_187908_cc); break;
+            case 6: nextPieceView.setImageResource(R.drawable.noun_187911_cc); break;
             default: break;
         }
     }
@@ -632,7 +647,6 @@ public class TetrisActivity extends AppCompatActivity {
         }
     }
 
-
     public String rankingStringArrayToJSON(String[] stringArray) {
         JSONObject jsonObject = new JSONObject();
         try {
@@ -646,7 +660,6 @@ public class TetrisActivity extends AppCompatActivity {
         return jsonObject.toString();
     }
 
-
     public class SendRanking extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
@@ -655,12 +668,15 @@ public class TetrisActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... none) {
+            String[] data = new String[2];
+            data[0] = MainActivity.userName;
+            data[1] = Integer.toString(score);
             sendHttpWithContact("http://52.78.101.202:3000/api/ranks", rankingStringArrayToJSON(data));
             return null;
         }
 
         protected void onPostExecute(Void none){
-
         }
     }
+
 }
