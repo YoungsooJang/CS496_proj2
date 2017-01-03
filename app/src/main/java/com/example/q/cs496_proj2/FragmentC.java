@@ -26,6 +26,7 @@ public class FragmentC extends Fragment {
     private static ListView listView2;
     RankingListViewAdapter rankingListViewAdapter;
     private int scoreIDCount = 1;
+    private static boolean firstView = true;
 
     private ArrayList<String[]> rankingList = new ArrayList<>();
 
@@ -67,15 +68,18 @@ public class FragmentC extends Fragment {
                     public void onCompleted(Exception e, com.koushikdutta.ion.Response<String> result) {
                         Log.d("RESPONSE", "***************************************** " + result.getResult());
                         try {
-                            JSONArray scoreList = new JSONArray(result.getResult());
-                            String[] data;
-                            for (int i = 0; i < scoreList.length(); i++) {
-                                data = new String[3];
-                                data[0] = Integer.toString(scoreIDCount);
-                                scoreIDCount += 1;
-                                data[1] = scoreList.getJSONObject(i).getString("name");
-                                data[2] = scoreList.getJSONObject(i).getString("score");
-                                rankingList.add(data);
+                            if (firstView) {
+                                JSONArray scoreList = new JSONArray(result.getResult());
+                                String[] data;
+                                for (int i = 0; i < scoreList.length(); i++) {
+                                    data = new String[3];
+                                    data[0] = Integer.toString(scoreIDCount);
+                                    scoreIDCount += 1;
+                                    data[1] = scoreList.getJSONObject(i).getString("name");
+                                    data[2] = scoreList.getJSONObject(i).getString("score");
+                                    rankingList.add(data);
+                                }
+                                firstView = false;
                             }
                         } catch (JSONException e1) {
                             e1.printStackTrace();
